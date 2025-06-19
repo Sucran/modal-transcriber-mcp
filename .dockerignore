@@ -1,0 +1,55 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Git
+.git/
+.gitignore
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project specific
+.pytest_cache/
+tests/
+scripts/
+cache/
+*.tar.gz
+*.log
+
+# Development files
+start_modal.py
+start_local.py
+deployment_manager.py
+uv.lock
+.python-version
+.cursorindexingignore
+.specstory/
+Makefile
+README_LOCAL.md
+README_HF.md
+config.env
+config.env.example
+runtime.txt
+requirements_minimal.txt
+
+# Modal and local development
+modal_*
+*_modal.py
+endpoint_config.json 

@@ -10,3 +10,12 @@ wheels/
 .venv
 .specstory/*
 .cursorindexingignore
+.idea/*
+
+# Configuration files (contains sensitive data)
+config.env
+endpoint_config.json
+
+# Cache directories
+cache/
+.gradio_mcp_cache/
