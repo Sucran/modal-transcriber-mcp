@@ -135,11 +135,11 @@ MODAL_TRANSCRIBE_CHUNK_ENDPOINT=https://{your-username}--transcribe-audio-chunk-
 
 ## Future Plans
 
-- [] Improve speaker identification accuracy
-- [] Increase concurrent processing capacity of single GPU functions
-- [] Optimize speaker clustering algorithms
-- [] Support computing platforms in mainland China
-- [] Test cost-effectiveness of other GPU types
+- [ ] Improve speaker identification accuracy
+- [ ] Increase concurrent processing capacity of single GPU functions
+- [ ] Optimize speaker clustering algorithms
+- [ ] Support computing platforms in mainland China
+- [ ] Test cost-effectiveness of other GPU types
 
 ## 🤝 Contributing
 
@@ -153,6 +153,3 @@ MIT License
 
 - **Test Coverage**: 29 test cases ensuring functional stability
 - **Modal Deployment**: Support for cloud high-performance processing
-
----
-*Last updated: 2025-06-11* 
