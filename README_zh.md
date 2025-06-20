@@ -1,95 +1,154 @@
-# Modal AudioTranscriber MCP
+# 🎙️ Modal Transcriber MCP
 
-AudioTranscriber MCP 是一个 基于 👑 Modal 平台 的Serverless服务. ，是集成 Gradio 、FastMCP 和 Modal 的播客转录 MCP 服务器
+[English Version](./README.md)
 
-支持Apple和小宇宙两个播客平台，支持播客的url转录为文本
+一个强大的音频转录，支持streamhttp的mcp服务，集成 Gradio UI、FastMCP 工具和 Modal 云计算平台，具备智能说话人识别功能。
 
-一小时的播客内容只需要转录3-4分钟，加速15x-20x
+## ✨ 核心功能
 
-感谢 Modal 平台提供的额度，在转录过程中同时启用10个gpu并行容器进行处理
+- **🎵 多平台音频下载**：支持 Apple Podcasts、小宇宙等播客平台
+- **🚀 高性能转录**：基于 OpenAI Whisper，支持多种模型（turbo、large-v3 等）
+- **🎤 智能说话人识别**：使用 pyannote.audio 进行说话人分离和嵌入聚类
+- **⚡ 分布式处理**：支持大文件并发分块处理，显著提升处理速度
+- **🔧 FastMCP 工具**：完整的 MCP（模型上下文协议）工具集成
+- **☁️ Modal 部署**：支持本地和云端部署模式
 
-## 功能特性
+## 🎯 核心优势
 
-- 🎵 高质量音频转录（使用 OpenAI Whisper turbo）
-- 🎭 可选的说话人分离（使用 pyannote.audio）
-- 🚀 GPU 加速处理（Modal 部署）
-- 🌐 Web 界面（Gradio）
-- 🔧 MCP StreambleHttp 工具集成（FastMCP）
+### 🧠 智能音频分段
+- **静音检测分段**：自动识别音频中的静音片段，进行智能分块
+- **降级机制**：超长音频自动降级为时间分段，确保处理效率
+- **并发处理**：多个分块同时处理，大幅提升转录速度
 
-## 快速开始
+### 🎤 高级说话人识别
+- **嵌入聚类**：使用深度学习嵌入进行说话人一致性识别
+- **跨分块统一**：解决分布式处理中说话人标签不一致的问题
+- **质量过滤**：自动过滤低质量片段，提升输出准确性
 
-1. 部署到 Modal：
+### 🔧 开发者友好
+- **MCP 协议支持**：完整的工具调用接口
+- **REST API**：标准化 API 接口
+- **Gradio UI**：直观的 Web 界面
+- **测试覆盖**：29个单元测试和集成测试
+
+## 🚀 快速开始
+
+### 环境配置
+
+1. **克隆仓库**
 ```bash
-modal deploy main.py
+git clone https://github.com/Sucran/modal-transcriber-mcp.git
+cd modal-transcriber-mcp
 ```
 
-2. 访问 Web 界面或使用 MCP 客户端
+2. **安装依赖【强烈推荐使用uv】**
+```bash
+uv init --bare --python 3.10
+uv sync --python 3.12
+source .venv/bin/activate
+```
 
-直接访问Gradio界面： https://richardsucran--gradio-mcp-server-gradio-mcp-app.modal.run
+3. **配置 Hugging Face Token**（可选，用于说话人识别）
+```bash
+# 创建 .env 文件
+cp config.env.example config.env
+# YOUR_ACTUAL_TOKEN_HERE 是你真实的Huggingface平台的token
+# 这个token需要开通以下三个仓库的模型拉取权限
+# pyannote/embedding：https://huggingface.co/pyannote/embedding 
+# pyannote/segmentation-3.0： https://huggingface.co/pyannote/segmentation-3.0
+# pyannote/speaker-diarization-3.1：https://huggingface.co/pyannote/speaker-diarization-3.1
+sed -i 's/your-huggingface-token-here/YOUR_ACTUAL_TOKEN_HERE/' config.env
+```
 
-Cusor配置：
+4. **modal 平台认证**
+
+```bash
+# 需要网页登录modal平台，之后token自动进行本地保存
+modal token new
+```
+
+5. **部署modal的gpu function endpoint**
+```bash
+python start_modal.py
+```
+并修改你的config.env中：
+```text
+MODAL_TRANSCRIBE_CHUNK_ENDPOINT=https://your-username--transcribe-audio-chunk-endpoint.modal.run
+MODAL_HEALTH_CHECK_ENDPOINT=https://your-username--health-check-endpoint.modal.run
+MODAL_GRADIO_UI_ENDPOINT=https://your-username--gradio-mcp-ui-app-entry.modal.run
+```
+将 your-username 替换成你自己的 modal 用户名
+
+6. **本地部署gradio和fastmcp**（可选，用于本地调试 / 开发）
+
+```bash
+python start_modal.py
+```
+
+7. **Modal云端部署gradio和fastmcp**
+
+```bash
+modal deploy src.app::gradio_mcp_app
+```
+
+### 📚 How to Use This MCP Server
+
+本应用程序同时提供了 **Web 界面** 和 **MCP（模型上下文协议）工具** 供 AI 助手使用
+
+以下是演示视频：
+
+[![YouTube Video](https://img.youtube.com/vi/Ut5jw7Epb0o/0.jpg)](https://youtu.be/Ut5jw7Epb0o)
+
+当你是本地部署时，mcp配置为：
 ```json
 {
-  "mcpServers": {
-    "audiotranscriber-mcp": {
-      "url": "https://richardsucran--gradio-mcp-server-gradio-mcp-app.modal.run/api/mcp"
+    "mcpServers": {
+        "podcast-mcp": {
+            "url": "http://127.0.0.1:7860/api/mcp"
+        }
     }
-  }
+}
+```
+当你是modal部署时，mcp配置为：
+```json
+{
+    "mcpServers": {
+        "podcast-mcp": {
+            "url": "https://{your-username}--gradio-mcp-ui-app-entry.modal.run/api/mcp"
+        }
+    }
+}
 ```
 
-## 🎭 说话人分离（可选）
+两者都会同时使用modal上部署的gpu函数：
+MODAL_TRANSCRIBE_CHUNK_ENDPOINT=https://{your-username}--transcribe-audio-chunk-endpoint.modal.run
 
-说话人分离可以识别音频中的不同说话人，但需要 Hugging Face 身份验证。
+## 🛠️ 技术架构
 
-### 设置步骤：
+- **前端**：Gradio 5.31
+- **后端**：FastAPI + FastMCP
+- **转录引擎**：OpenAI Whisper
+- **说话人识别**：pyannote.audio
+- **云计算**：Modal.com
+- **音频处理**：FFmpeg
 
-1. **获取 Hugging Face Token**：
-   - 访问 [https://hf.co/settings/tokens](https://hf.co/settings/tokens)
-   - 创建新的访问令牌
+## 后续计划
 
-2. **接受模型许可证**：
-   - 访问 [https://hf.co/pyannote/embedding](https://hf.co/pyannote/embedding)
-   - 访问 [https://hf.co/pyannote/speaker-diarization-3.1](https://hf.co/pyannote/speaker-diarization-3.1)
-   - 接受用户条款
+- [ ] 提升说话人识别的精度
+- [ ] 提升单gpu函数的并发处理数
+- [ ] 说话人聚类算法优化
+- [ ] 支持中国大陆的共绩算力平台
+- [ ] 测试其他gpu的成本
 
-3. **配置 Modal 密钥**：
-```bash
-modal secret create huggingface-secret HUGGING_FACE_TOKEN=你的令牌
-```
+## 🤝 贡献
 
-### 功能说明：
+欢迎提交 Issue 和 Pull Request！
 
-- ✅ **有 Token**：完整的说话人分离功能
-- ⚠️ **无 Token**：仅转录功能，说话人分离将自动禁用
-- 📝 **错误处理**：缺少令牌时显示友好的错误消息
+## 📜 许可证
 
-## 存储配置
+MIT License
 
-mcp工具会将下载的音频和转录的文本存储到 Modal平台上
+## 🔗 相关链接
 
-用户需要在客户端说明并引导客户端进行读取文本，并将转录文本写入本地
-
-### Modal 密钥（可选）
-```bash
-# 说话人分离功能必需
-modal secret create huggingface-secret HUGGING_FACE_TOKEN=你的令牌
-```
-
-## MCP 工具
-
-- `download_apple_podcast_tool`: 下载 Apple Podcast 音频文件并保存到Modal存储卷中指定目录
-- `download_xyz_podcast_tool`: 下载小宇宙播客音频文件并保存到Modal存储卷中指定目录
-- `get_mp3_files_tool`: 扫描Modal存储卷中指定目录获取所有 MP3 音频文件的详细信息列表
-- `transcribe_audio_file_tool`: 使用 Whisper 模型将音频文件转录为文本，支持多种输出格式和说话人分离
-- `read_text_file_segments_tool`: 分段读取Modal存储卷中文本文件内容，智能处理文本边界
-- `get_file_info_tool`: 获取Modal存储卷中文件的基本信息，包括大小、修改时间等
-
-## 开发
-
-```bash
-# 开发模式
-modal serve main.py
-
-# 生产部署
-modal deploy main.py
-``` 
+- **测试覆盖**：29 个测试用例确保功能稳定性
+- **Modal 部署**：支持云端高性能处理

@@ -1,0 +1,23 @@
+# Core dependencies from pyproject.toml
+fastapi
+fastmcp>=2.7.0
+mcp[cli]
+modal>=1.0.3
+uvicorn>=0.24.0
+requests>=2.31.0
+python-multipart>=0.0.6
+aiofiles>=23.2.1
+gradio>=5.31.0
+pydantic>=2.0.0
+python-dotenv>=1.0.0
+starlette>=0.27.0
+httpx>=0.25.0
+bs4>=0.0.2
+selenium>=4.33.0
+ffmpeg-python>=0.2.0
+torch>=2.7.1
+openai-whisper>=20240930
+pyannote.audio>=3.1.0
+speechbrain>=0.5.16
+soundfile>=0.12.1
+numpy>=1.24.0 

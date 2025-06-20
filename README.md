@@ -1,20 +1,10 @@
----
-title: Modal Transcriber MCP
-emoji: 🎙️
-colorFrom: blue
-colorTo: purple
-sdk: docker
-app_port: 7860
-pinned: false
-license: mit
-tag: mcp-server-track
----
-
 # 🎙️ Modal Transcriber MCP
 
-A powerful audio transcription system integrating Gradio UI, FastMCP Tools, and Modal cloud computing with intelligent speaker identification.
+[中文版本](./README_zh.md)
 
-## ✨ Key Features
+A powerful audio transcription streamhttp mcp server integrating Gradio UI, FastMCP Tools, and Modal cloud computing with intelligent speaker identification.
+
+## ✨ Core Features
 
 - **🎵 Multi-platform Audio Download**: Support for Apple Podcasts, XiaoYuZhou, and other podcast platforms
 - **🚀 High-performance Transcription**: Based on OpenAI Whisper with multiple model support (turbo, large-v3, etc.)
@@ -43,54 +33,113 @@ A powerful audio transcription system integrating Gradio UI, FastMCP Tools, and 
 
 ## 🚀 Quick Start
 
-### Local Setup
+### Environment Setup
 
 1. **Clone Repository**
 ```bash
-git clone https://huggingface.co/spaces/Agents-MCP-Hackathon/ModalTranscriberMCP
-cd ModalTranscriberMCP
+git clone https://github.com/Sucran/modal-transcriber-mcp.git
+cd modal-transcriber-mcp
 ```
 
-2. **Install Dependencies**
+2. **Install Dependencies [Strongly Recommend Using uv]**
 ```bash
-pip install -r requirements.txt
+uv init --bare --python 3.10
+uv sync --python 3.12
+source .venv/bin/activate
 ```
 
 3. **Configure Hugging Face Token** (Optional, for speaker identification)
 ```bash
-# Create .env file
-echo "HF_TOKEN=your_huggingface_token_here" > .env
+# Copy configuration template
+cp config.env.example config.env
+# YOUR_ACTUAL_TOKEN_HERE is your real Huggingface platform token
+# This token needs permission to access the following three model repositories:
+# pyannote/embedding: https://huggingface.co/pyannote/embedding 
+# pyannote/segmentation-3.0: https://huggingface.co/pyannote/segmentation-3.0
+# pyannote/speaker-diarization-3.1: https://huggingface.co/pyannote/speaker-diarization-3.1
+sed -i 's/your-huggingface-token-here/YOUR_ACTUAL_TOKEN_HERE/' config.env
 ```
 
-4. **Start Application**
+4. **Modal Platform Authentication**
+
 ```bash
-python app.py
+# Need to login to Modal platform via web browser, then token will be saved locally
+modal token new
 ```
 
-### Usage Instructions
+5. **Deploy Modal GPU Function Endpoints**
+```bash
+python start_modal.py
+```
+Then modify your config.env:
+```text
+MODAL_TRANSCRIBE_CHUNK_ENDPOINT=https://your-username--transcribe-audio-chunk-endpoint.modal.run
+MODAL_HEALTH_CHECK_ENDPOINT=https://your-username--health-check-endpoint.modal.run
+MODAL_GRADIO_UI_ENDPOINT=https://your-username--gradio-mcp-ui-app-entry.modal.run
+```
+Replace `your-username` with your actual Modal username
 
-1. **Upload audio file** or **Input podcast URL**
-2. **Select transcription options**:
-   - Model size: turbo (recommended) / large-v3
-   - Output format: SRT / TXT
-   - Enable speaker identification
-3. **Start transcription**, the system will automatically process and generate results
+6. **Local Deployment of Gradio and FastMCP** (Optional, for local debugging/development)
+
+```bash
+python start_local.py
+```
+
+7. **Modal Cloud Deployment of Gradio and FastMCP**
+
+```bash
+modal deploy src.app::gradio_mcp_app
+```
+
+### 📚 How to Use This MCP Server
+
+This application provides both **Web Interface** and **MCP (Model Context Protocol) Tools** for AI assistants to use.
+
+Here's a demo video:
+
+[![YouTube Video](https://img.youtube.com/vi/Ut5jw7Epb0o/0.jpg)](https://youtu.be/Ut5jw7Epb0o)
+
+For local deployment, MCP configuration is:
+```json
+{
+    "mcpServers": {
+        "podcast-mcp": {
+            "url": "http://127.0.0.1:7860/api/mcp"
+        }
+    }
+}
+```
+
+For Modal deployment, MCP configuration is:
+```json
+{
+    "mcpServers": {
+        "podcast-mcp": {
+            "url": "https://{your-username}--gradio-mcp-ui-app-entry.modal.run/api/mcp"
+        }
+    }
+}
+```
+
+Both will use the GPU functions deployed on Modal:
+MODAL_TRANSCRIBE_CHUNK_ENDPOINT=https://{your-username}--transcribe-audio-chunk-endpoint.modal.run
 
 ## 🛠️ Technical Architecture
 
-- **Frontend**: Gradio 4.44.0
+- **Frontend**: Gradio 5.31
 - **Backend**: FastAPI + FastMCP
 - **Transcription Engine**: OpenAI Whisper
 - **Speaker Identification**: pyannote.audio
 - **Cloud Computing**: Modal.com
 - **Audio Processing**: FFmpeg
 
-## 📊 Performance Metrics
+## Future Plans
 
-- **Processing Speed**: Support for 30x real-time transcription speed
-- **Concurrency**: Up to 10 chunks processed simultaneously
-- **Accuracy**: Chinese accuracy >95%
-- **Supported Formats**: MP3, WAV, M4A, FLAC, etc.
+- [] Improve speaker identification accuracy
+- [] Increase concurrent processing capacity of single GPU functions
+- [] Optimize speaker clustering algorithms
+- [] Support computing platforms in mainland China
+- [] Test cost-effectiveness of other GPU types
 
 ## 🤝 Contributing
 
@@ -102,7 +151,6 @@ MIT License
 
 ## 🔗 Related Links
 
-- **Project Documentation**: See `docs/` directory in the repository
 - **Test Coverage**: 29 test cases ensuring functional stability
 - **Modal Deployment**: Support for cloud high-performance processing
 

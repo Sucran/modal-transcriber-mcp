@@ -38,11 +38,11 @@ modal:
 
 deploy-endpoints:
 	@echo "🚀 部署GPU endpoints到Modal..."
-	python deployment_manager.py deploy
+	python -m src.deployment.deployment_manager deploy
 
 check-endpoints:
 	@echo "🔍 检查endpoints状态..."
-	python deployment_manager.py status
+	python -m src.deployment.deployment_manager status
 
 hf-prepare:
 	@echo "🤗 准备HF Spaces部署文件..."
